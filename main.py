@@ -1,9 +1,13 @@
 import streamlit as st
 
+from os.path import join
+
 from langchain_ollama.llms import OllamaLLM
 from langchain_community.vectorstores import FAISS
 from langchain_ollama import OllamaEmbeddings
-
+from langchain_community.docstore.in_memory import InMemoryDocstore
+from langchain_core.vectorstores import InMemoryVectorStore
+from consts import PDFS_DIRECTORY
 from src.RAG.pdf_rag import (
     upload_pdf,
     load_pdf,
@@ -16,7 +20,13 @@ from src.RAG.pdf_rag import (
 
 def chatbot():
     embeddings = OllamaEmbeddings(model="deepseek-r1:7b")
-    vector_store = FAISS(embeddings=embeddings, index_path="data/faiss_index")
+    # vector_store = FAISS(
+    #     embedding_function=embeddings,
+    #     index="Flat",
+    #     docstore=InMemoryDocstore,
+    #     index_to_docstore_id={},
+    # )
+    vector_store = InMemoryVectorStore(embeddings)
     model = OllamaLLM(model="deepseek-r1:7b")
 
     template = """ You are an assistant for question-answering tasks. Use the following pieces of retrieved context to answer the question. 
@@ -30,15 +40,16 @@ def chatbot():
 
     if uploaded_file:
         upload_pdf(uploaded_file)
-        documents = load_pdf(uploaded_file.name)
+        documents = load_pdf(join(PDFS_DIRECTORY, uploaded_file.name))
         documents = split_text(documents)
         index_documents(documents, vector_store)
 
-        question = st.text_input("Ask a question")
+        question = st.chat_input()
         if question:
-            retrieved_documents = retrieve_documents(question, vector_store)
-            answer = answer_question(question, retrieved_documents, template, model)
-            st.write(answer)
+            st.chat_message("user").write(question)
+            related_documents = retrieve_documents(question, vector_store)
+            answer = answer_question(question, related_documents, template, model)
+            st.chat_message("bot").write(answer)
 
 
 if __name__ == "__main__":

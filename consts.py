@@ -1,0 +1,1 @@
+PDFS_DIRECTORY = 'data/pdfs'

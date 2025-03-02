@@ -1,0 +1,15 @@
+[project]
+name = "personal-llm"
+version = "0.1.0"
+description = "This is a personal project about fine-tuning LLMs for NLP tasks. I haven't decided what data I will use yet, but I hope it helps me in developing my NLP skills."
+authors = ["Mario Cantu"]
+license = "MIT"
+readme = "README.md"
+requires-python = ">=3.11"
+dependencies = [
+    "langchain-community>=0.3.18",
+    "langchain-core>=0.3.40",
+    "langchain-ollama>=0.2.3",
+    "pdfplumber>=0.11.5",
+    "streamlit>=1.42.2",
+]

@@ -4,8 +4,8 @@ from os.path import join
 
 from langchain_ollama.llms import OllamaLLM
 from langchain_community.vectorstores import FAISS
-from langchain_ollama import OllamaEmbeddings
 from langchain_community.docstore.in_memory import InMemoryDocstore
+from langchain_ollama import OllamaEmbeddings
 from langchain_core.vectorstores import InMemoryVectorStore
 from consts import PDFS_DIRECTORY
 from src.RAG.pdf_rag import (
@@ -20,23 +20,24 @@ from src.RAG.pdf_rag import (
 
 def chatbot():
     embeddings = OllamaEmbeddings(model="deepseek-r1:7b")
-    # vector_store = FAISS(
-    #     embedding_function=embeddings,
-    #     index="Flat",
-    #     docstore=InMemoryDocstore,
-    #     index_to_docstore_id={},
-    # )
-    vector_store = InMemoryVectorStore(embeddings)
+    vector_store = FAISS(
+        embedding_function=embeddings,
+        index="Flat",
+        docstore=InMemoryDocstore,
+        index_to_docstore_id={},
+    )
+    # vector_store = InMemoryVectorStore(embeddings)
     model = OllamaLLM(model="deepseek-r1:7b")
 
-    template = """ You are an assistant for question-answering tasks. Use the following pieces of retrieved context to answer the question. 
-    If you don't know the answer, just say that you don't know. Remember to be concise.
-    Question: {question} 
-    Context: {context} 
-    Answer:
+    template = """Eres un médico experto en tomar el examen de especialidad en México, el ENARM, y también eres un
+    asistente para resolver dudas médicas puntuales. Usa los siguientes fragmentos de contexto recuperados para
+    responder la pregunta. Si no sabes la respuesta, simplemente di que no sabes. Recuerda ser conciso y preciso.
+    Pregunta: {question}
+    Contexto: {context}
+    Respuesta:
     """
 
-    uploaded_file = st.file_uploader("Upload a PDF file", type=["pdf"])
+    uploaded_file = st.file_uploader("Sube el archivo PDF.", type=["pdf"])
 
     if uploaded_file:
         upload_pdf(uploaded_file)

@@ -2,31 +2,39 @@ from langchain_community.document_loaders import PDFPlumberLoader
 from langchain_text_splitters import RecursiveCharacterTextSplitter
 from langchain_core.prompts import ChatPromptTemplate
 
+from typing import List
+from langchain_core.documents import Document
+
 from os.path import join
 from consts import PDFS_DIRECTORY
 
 
 def upload_pdf(file):
+    """This function uploads a PDF file to the server.
+
+    Args:
+        file (_type_): _description_
+    """
     with open(join(PDFS_DIRECTORY, file.name), "wb") as f:
         f.write(file.getbuffer())
 
 
-def load_pdf(file_path):
+def load_pdf(file_path: str) -> list[Document]:
     """This function loads a PDF file and returns a list of documents.
 
     Args:
-        file_path (_type_): _description_
+        file_path (str): The path to the PDF file.
 
     Returns:
-        _type_: _description_
+        list[Document]: Returns a list of documents.
     """
     documents = PDFPlumberLoader(file_path).load()
     return documents
 
 
-def split_text(documents):
+def split_text(documents) -> List[Document]:
     return RecursiveCharacterTextSplitter(
-        chunk_size=1000, chunk_overlap=100, add_start_index=True
+        chunk_size=2000, chunk_overlap=150, add_start_index=True, strip_whitespace=True
     ).split_documents(documents)
 
 

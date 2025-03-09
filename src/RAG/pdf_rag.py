@@ -1,7 +1,10 @@
+import faiss
+from langchain_community.embeddings import OllamaEmbeddings
 from langchain_community.document_loaders import PDFPlumberLoader
 from langchain_text_splitters import RecursiveCharacterTextSplitter
 from langchain_core.prompts import ChatPromptTemplate
-
+from langchain_community.vectorstores import FAISS
+from langchain_community.docstore.in_memory import InMemoryDocstore
 from typing import List
 from langchain_core.documents import Document
 
@@ -39,7 +42,12 @@ def split_text(documents) -> List[Document]:
 
 
 def index_documents(documents, vector_store):
-    vector_store.add_documents(documents)
+    # Check if vector_store is a FAISS instance
+    if isinstance(vector_store, FAISS):
+        texts = [doc.page_content for doc in documents]
+        vector_store.add_texts(texts)
+    else:
+        vector_store.add_documents(documents)
 
 
 def retrieve_documents(query, vector_store):
@@ -52,3 +60,17 @@ def answer_question(question, documents, template, model):
     chained_prompt = prompt | model
 
     return chained_prompt.invoke({"question": question, "context": context})
+
+
+def save_faiss_index(vector_store: FAISS, path: str):
+    faiss.write_index(vector_store.index, path)
+
+
+def load_faiss_index(path: str, embeddings: OllamaEmbeddings) -> FAISS:
+    index = faiss.read_index(path)
+    return FAISS(
+        embedding_function=embeddings,
+        index=index,
+        docstore=InMemoryDocstore(),
+        index_to_docstore_id={},
+    )

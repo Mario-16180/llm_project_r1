@@ -8,9 +8,11 @@ readme = "README.md"
 requires-python = ">=3.11"
 dependencies = [
     "faiss-cpu>=1.10.0",
+    "fastapi>=0.115.11",
     "langchain-community>=0.3.18",
     "langchain-core>=0.3.40",
     "langchain-ollama>=0.2.3",
     "pdfplumber>=0.11.5",
     "streamlit>=1.42.2",
+    "uvicorn>=0.34.0",
 ]
